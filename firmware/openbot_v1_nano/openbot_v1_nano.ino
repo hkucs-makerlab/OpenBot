@@ -120,8 +120,10 @@ Motor leftMotors(PIN_PWM_L1, PIN_PWM_L2);
 Mobile mobile(rightMotors, leftMotors);
 
 //Vehicle Control
-const int max_speed = 192;
-const int min_speed = 64;
+const int max_speed = 250;
+const int min_speed = 110;
+//int ctrl_left_speed = min_speed + (max_speed - min_speed) / 2;
+//int ctrl_right_speed = min_speed + (max_speed - min_speed) / 2;
 int ctrl_left_speed = 0;
 int ctrl_right_speed = 0;
 
@@ -129,8 +131,8 @@ int ctrl_right_speed = 0;
 //Speed sensor
 extern void update_speed_left_isr();
 extern void update_speed_right_isr();
-SpeedSensor leftSpeedSensor(PIN_SPEED_L, update_speed_left_isr);
-SpeedSensor rightSppedSensor(PIN_SPEED_R, update_speed_right_isr);
+SpeedSensor leftSpeedSensor(PIN_SPEED_L);
+SpeedSensor rightSpeedSensor(PIN_SPEED_R);
 #endif
 
 //Serial communication
@@ -149,6 +151,11 @@ void setup()
 
 #if HAS_OLED
   oledDisplay.begin();
+#endif
+
+#if HAS_SPEED_SENSORS
+  leftSpeedSensor.begin(update_speed_left_isr);
+  rightSpeedSensor.begin(update_speed_right_isr);
 #endif
 
   //Test sequence for indicator LEDs
@@ -277,8 +284,8 @@ void read_msg() {
 }
 
 void send_vehicle_data() {
-  float rpm_left  = 0;
-  float rpm_right = 0;
+  int ticks_left = 0;
+  int ticks_right = 0;
 #if HAS_VOLTAGE_DIVIDER
   float voltage_value = voltageDivider.getVoltage();
 #else
@@ -289,13 +296,12 @@ void send_vehicle_data() {
   distance_estimate = sonar.getDistance();
 #endif
 
-#if (NO_PHONE_MODE || HAS_OLED)
 #if HAS_SPEED_SENSORS
-  rpm_left = leftSpeedSensor.getRPM();
-  rpm_right = rightSppedSensor.getRPM();
-#endif
-#if HAS_OLED
-  oledDisplay.setRPM(rpm_left, rpm_right);
+#if (NO_PHONE_MODE || HAS_OLED)
+  ticks_left = leftSpeedSensor.getTicks();
+  ticks_right = rightSpeedSensor.getTicks();
+  float rpm_left = leftSpeedSensor.getRPM();
+  float rpm_right = rightSpeedSensor.getRPM();
 #endif
 #endif
 
@@ -313,9 +319,9 @@ void send_vehicle_data() {
   // send data to phone
   Serial.print(voltage_value);
   Serial.print(",");
-  Serial.print(leftSpeedSensor.getCounter());
+  Serial.print(ticks_left);
   Serial.print(",");
-  Serial.print(rightSppedSensor.getCounter());
+  Serial.print(ticks_right);
   Serial.print(",");
   Serial.print(distance_estimate);
   Serial.println();
@@ -323,6 +329,7 @@ void send_vehicle_data() {
 
 #if HAS_OLED
   // Set display information
+  oledDisplay.setRPM(rpm_left, rpm_right);
   oledDisplay.setDistance(distance_estimate);
   oledDisplay.setVoltage(voltage_value);
   oledDisplay.drawString();
@@ -342,16 +349,19 @@ void update_speed_left_isr() {
   else if (ctrl_left_speed > 0) {
     leftSpeedSensor.inc();
   }
+  //Serial.println("update_speed_left_isr");
 }
 
 // ISR: Increment speed sensor counter (right)
 void update_speed_right_isr() {
+
   if (ctrl_right_speed < 0) {
-    rightSppedSensor.dec();
+    rightSpeedSensor.dec();
   }
   else if (ctrl_right_speed > 0) {
-    rightSppedSensor.inc();
+    rightSpeedSensor.inc();
   }
+  //Serial.println("update_speed_right_isr");
 }
 #endif
 
