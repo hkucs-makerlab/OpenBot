@@ -20,13 +20,9 @@ class Motor {
         analogWrite(pin1, 0);
         analogWrite(pin2, speed);
       } else { //Motor brake
-        analogWrite(pin1, 255);
-        analogWrite(pin1, 255);
+        analogWrite(pin1, 0);
+        analogWrite(pin1, 0);
       }
-    }
-    void stop() {
-      digitalWrite(pin1, LOW);
-      digitalWrite(pin2, LOW);
     }
 };
 
@@ -42,8 +38,6 @@ class Mobile {
     }
 
     void updateSpeed(int right, int left) {
-//      right=0;
-//      left=right;
       rightMotors.update(right);
       leftMotors.update(left);
 //      static long prev = 0;
