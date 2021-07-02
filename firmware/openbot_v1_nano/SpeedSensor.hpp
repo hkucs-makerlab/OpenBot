@@ -6,31 +6,35 @@ class SpeedSensor {
   private:
     static const unsigned int DISK_HOLES = 20;
     volatile int counter;
-    float rpm;
+    int ticks;
+    int pin;
 
   public:
-    SpeedSensor(int pin, void (*isr)(void)) {
+    SpeedSensor(int pin): pin(pin), counter(0) {
       pinMode(pin, INPUT);
+    }
+
+    void begin(void (*isr)(void)) {
       // isr calls inc() and dec()
       attachPinChangeInterrupt(digitalPinToPinChangeInterrupt(pin), isr, FALLING);
     }
 
-    inline void inc() {
+    void inc() {
       counter++;
     }
 
-    inline void dec() {
+    void dec() {
       counter--;
     }
 
-    inline float getRPM() {
-      int ticks = counter;
-      counter = 0;
-      rpm = ticks * 60.0 * (1000.0 / SEND_INTERVAL) / (DISK_HOLES);
-      return rpm;
+    float getRPM() {
+      getTicks();
+      return ticks * 60.0 * (1000.0 / SEND_INTERVAL) / (DISK_HOLES);
     }
 
-    inline int getCounter() {
-      return counter;
+    int getTicks() {
+      ticks = counter;
+      counter = 0;
+      return ticks;
     }
 };
