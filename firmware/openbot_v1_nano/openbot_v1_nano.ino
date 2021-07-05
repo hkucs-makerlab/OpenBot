@@ -43,12 +43,12 @@
 #define PIN_PWM_R2  10
 #define PIN_ECHO    11
 #define PIN_TRIGGER 12
-#if PS2_GAMEPAD
+#if HAS_PS2_GAMEPAD
 #define PS2_CLK A0  // sck
 #define PS2_ATT A1  // cs
 #define PS2_CMD A2  // mosi
 #define PS2_DAT A3  // miso
-#endif // PS2_GAMEPAD
+#endif // HAS_PS2_GAMEPAD
 #define PIN_VIN     A6
 #define PIN_MOTOR_CAL A7
 #elif (OPENBOT == PCB_V1)
@@ -105,7 +105,7 @@ Display oledDisplay;
 VoltageDivider voltageDivider(PIN_VIN);
 #endif
 
-#if (OPENBOT == DIY)
+#if (OPENBOT == DIY && HAS_BUZZER)
 #include "Buzzer.hpp"
 Buzzer buzzer(PIN_BUZZER);
 #endif
@@ -165,7 +165,9 @@ void setup()
 #endif
 
 #if (OPENBOT == DIY)
+#if HAS_BUZZER
   buzzer.beep();
+#endif  
   while (analogRead(PIN_MOTOR_CAL) > 1000)  {
     delay(1000);
     mobile.forward();
@@ -290,6 +292,8 @@ void read_msg() {
 }
 
 void send_vehicle_data() {
+  float rpm_left;
+  float rpm_right;
   int ticks_left = 0;
   int ticks_right = 0;
 #if HAS_VOLTAGE_DIVIDER
@@ -306,8 +310,8 @@ void send_vehicle_data() {
 #if (NO_PHONE_MODE || HAS_OLED)
   ticks_left = leftSpeedSensor.getTicks();
   ticks_right = rightSpeedSensor.getTicks();
-  float rpm_left = leftSpeedSensor.getRPM();
-  float rpm_right = rightSpeedSensor.getRPM();
+  rpm_left = leftSpeedSensor.getRPM();
+  rpm_right = rightSpeedSensor.getRPM();
 #endif
 #endif
 

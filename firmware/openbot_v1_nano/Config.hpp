@@ -19,16 +19,18 @@
 #define HAS_INDICATORS 0
 
 // Enable/Disable speed sensors (1,0)
-#define HAS_SPEED_SENSORS 1
+#define HAS_SPEED_SENSORS 0
 
 // Enable/Disable sonar (1,0)
 #define HAS_SONAR 0
 
 // Enable/Disable median filter for sonar measurements (1,0)
-#define USE_MEDIAN 0
+#define USE_MEDIAN 1
 
 // Enable/Disable OLED (1,0)
 #define HAS_OLED 0
+
+#define HAS_BUZZER 0
 
 // Enable/Disable no phone mode (1,0)
 // In no phone mode:
@@ -40,6 +42,6 @@
 //
 #define SEND_INTERVAL 1000  // How frequently vehicle data is sent (ms).
 //
-#define PS2_GAMEPAD 0
+#define HAS_PS2_GAMEPAD 0
 
 #endif
