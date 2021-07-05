@@ -49,7 +49,8 @@
 #define PS2_CMD A2  // mosi
 #define PS2_DAT A3  // miso
 #endif // PS2_GAMEPAD
-#define PIN_VIN     A7
+#define PIN_VIN     A6
+#define PIN_MOTOR_CAL A7
 #elif (OPENBOT == PCB_V1)
 #define PIN_PWM_L1 9
 #define PIN_PWM_L2 10
@@ -81,7 +82,7 @@
 #include "Mobile.hpp"
 #include "SpeedSensor.hpp"
 #include <limits.h>
-const unsigned int STOP_THRESHOLD = 32; //cm
+const unsigned int STOP_THRESHOLD = 20; //cm
 
 #if NO_PHONE_MODE
 int turn_direction = 0; // right
@@ -165,6 +166,11 @@ void setup()
 
 #if (OPENBOT == DIY)
   buzzer.beep();
+  while (analogRead(PIN_MOTOR_CAL) > 1000)  {
+    delay(1000);
+    mobile.forward();
+    Serial.println("checking motor direction...");
+  }
 #endif
 }
 

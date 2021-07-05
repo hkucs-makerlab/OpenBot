@@ -11,7 +11,7 @@ class Motor {
       pinMode(pin1, OUTPUT);
       pinMode(pin2, OUTPUT);
     }
-    
+
     void update(int speed) {
       if (speed < 0) {
         analogWrite(pin1, -speed);
@@ -24,6 +24,8 @@ class Motor {
         analogWrite(pin1, 0);
       }
     }
+
+
 };
 
 class Mobile {
@@ -40,11 +42,14 @@ class Mobile {
     void updateSpeed(int right, int left) {
       rightMotors.update(right);
       leftMotors.update(left);
-//      static long prev = 0;
-//      if (millis() - 1000 > prev) {
-//        prev = millis();
-//        Serial.println("[Mobile]right speed: " + String(right) + ",left speed: " + String(left));
-//      }
+      //      static long prev = 0;
+      //      if (millis() - 1000 > prev) {
+      //        prev = millis();
+      //        Serial.println("[Mobile]right speed: " + String(right) + ",left speed: " + String(left));
+      //      }
+    }
+    void forward() {
+      updateSpeed(-255, -255);
     }
 };
 #endif
